@@ -80,7 +80,7 @@ def _uncacheable(request: Optional[Request], allow_cache_request: bool) -> bool:
     if request is None:
         return False
     if allow_cache_request:
-        return True
+        return False
     if request.method != "GET":
         return True
     return request.headers.get("Cache-Control") in ("no-store", "no-cache")
