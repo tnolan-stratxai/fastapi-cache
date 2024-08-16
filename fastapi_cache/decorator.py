@@ -72,7 +72,7 @@ def _uncacheable(request: Optional[Request], allow_cache_request: bool) -> bool:
     Returns true if:
     - Caching has been disabled globally
     - This is not a GET request
-    - The request has a Cache-Control header with a value of "no-store" or "no-cache"
+    - The request has a Cache-Control header with a value of "no-store"
 
     """
     if not FastAPICache.get_enable():
@@ -83,7 +83,7 @@ def _uncacheable(request: Optional[Request], allow_cache_request: bool) -> bool:
         return False
     if request.method != "GET":
         return True
-    return request.headers.get("Cache-Control") in ("no-store", "no-cache")
+    return request.headers.get("Cache-Control") == "no-store"
 
 
 def cache(
@@ -96,6 +96,7 @@ def cache(
 ) -> Callable[[Callable[P, Awaitable[R]]], Callable[P, Awaitable[Union[R, Response]]]]:
     """
     cache all function
+    :param injected_dependency_namespace:
     :param namespace:
     :param expire:
     :param coder:
@@ -185,7 +186,7 @@ def cache(
                 )
                 ttl, cached = 0, None
 
-            if cached is None:  # cache miss
+            if cached is None  or (request is not None and request.headers.get("Cache-Control") == "no-cache") :  # cache miss
                 result = await ensure_async_func(*args, **kwargs)
                 to_cache = coder.encode(result)
 
