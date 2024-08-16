@@ -226,8 +226,8 @@ def cache(
 
                 result = cast(R, coder.decode_as_type(cached, type_=return_type))
 
-                if "expires_in" in result: # type: ignore
-                    result["expires_in"] = ttl #type: ignore
+                if "exp" in result: # type: ignore
+                    result["exp"] = ttl #type: ignore
 
             return result
 
